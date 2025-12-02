@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+
+pydantic
+pydantic-settings
+
+python-dotenv
+openai
+
+pandas
+tqdm
+
+seaborn
+matplotlib
