@@ -1,6 +1,7 @@
 # backend/app/recommender.py
 
 import json
+import random
 from typing import List, Dict, Any
 
 import numpy as np
@@ -22,14 +23,17 @@ class Recommender:
         # user_id -> [product_id, ...]
         self.user_purchases: Dict[str, List[str]] = {}
 
-        # product_id -> {"description": str, "embedding": [float, ...]}
+        # product_id -> {"product_id": str, "description": str, "embedding": [float, ...]}
         self.product_data: Dict[str, Dict[str, Any]] = {}
 
         # product ids in the same order as rows in embedding_matrix
         self.product_ids: List[str] = []
 
-        # embedding matrix of shape (num_products, dim)
+        # embedding matrix of shape (num_products, dim), L2-normalized
         self.embedding_matrix: np.ndarray | None = None
+
+        # mapping product_id -> row index in embedding_matrix
+        self.id_to_index: Dict[str, int] = {}
 
         self._load_data()
 
@@ -53,6 +57,9 @@ class Recommender:
         norms = np.clip(norms, 1e-8, None)
         self.embedding_matrix = emb_arr / norms
 
+        # product_id -> index
+        self.id_to_index = {pid: idx for idx, pid in enumerate(self.product_ids)}
+
         print(
             f"Loaded {len(self.product_ids)} products, "
             f"{len(self.user_purchases)} users with purchases"
@@ -74,7 +81,9 @@ class Recommender:
 
     def get_bought_descriptions(self, user_id: str, limit: int = 20) -> List[str]:
         """
-        Используется для блока "Previous purchases" и для LLM-объяснений.
+        Descriptions of items that the user bought — used for:
+        - 'Previous purchases' block
+        - LLM explanations.
         """
         result: List[str] = []
         for pid in self.get_user_items(user_id):
@@ -84,6 +93,19 @@ class Recommender:
             if len(result) >= limit:
                 break
         return result
+
+    def clear_user_history(self, user_id: str) -> None:
+        """
+        Clears purchase history for a given user in memory.
+
+        In this demo, we don't rewrite JSON on disk — we simply
+        remove the in-memory history so that:
+        - user embedding collapses (no more personalized recs),
+        - user disappears from 'has purchases' list.
+        """
+        user_id = str(user_id)
+        if user_id in self.user_purchases:
+            self.user_purchases[user_id] = []
 
     def _build_user_embedding(self, user_id: str) -> np.ndarray | None:
         """
@@ -112,7 +134,7 @@ class Recommender:
 
         return user_vec / norm
 
-    # --- main recommendation method ---
+    # --- main recommendation method (user-based) ---
 
     def recommend_for_user(self, user_id: str, top_n: int = 12) -> List[Dict[str, Any]]:
         """
@@ -156,3 +178,55 @@ class Recommender:
                 break
 
         return recs
+
+    # --- item-based similarity for Product Page (Frequently Bought Together) ---
+
+    def get_random_product(self) -> Dict[str, Any] | None:
+        """
+        Returns a random product from the catalog (only those with embeddings).
+        """
+        if not self.product_ids:
+            return None
+
+        pid = random.choice(self.product_ids)
+        pdata = self.product_data.get(pid, {})
+        return {
+            "product_id": pid,
+            "description": pdata.get("description", "").strip(),
+        }
+
+    def similar_products(self, product_id: str, top_n: int = 8) -> List[Dict[str, Any]]:
+        """
+        Finds top-N most similar products by cosine similarity in embedding space.
+        Used for the 'Frequently bought together' block on the Product Page.
+        """
+        if self.embedding_matrix is None:
+            return []
+
+        idx = self.id_to_index.get(product_id)
+        if idx is None:
+            return []
+
+        anchor_vec = self.embedding_matrix[idx]  # [dim]
+        sims = self.embedding_matrix @ anchor_vec  # [num_products]
+        sims[idx] = -1e9  # do not recommend the same item
+
+        if top_n <= 0:
+            top_n = 8
+        top_n = min(top_n, len(self.product_ids) - 1)
+
+        top_idx = np.argpartition(-sims, top_n)[:top_n]
+        top_idx = top_idx[np.argsort(-sims[top_idx])]
+
+        results: List[Dict[str, Any]] = []
+        for j in top_idx:
+            pid = self.product_ids[j]
+            pdata = self.product_data.get(pid, {})
+            results.append(
+                {
+                    "product_id": pid,
+                    "description": pdata.get("description", ""),
+                    "score": float(sims[j]),
+                }
+            )
+        return results

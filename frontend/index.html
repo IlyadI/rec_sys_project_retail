@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OnlineRetail - Personalized Recommendation System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -24,12 +24,13 @@
             padding: 20px;
         }
 
-        /* Header Styles */
+        /* Header */
+
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 0.75rem 0;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -54,24 +55,6 @@
             font-size: 2rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
         .user-actions {
             display: flex;
             gap: 1rem;
@@ -81,7 +64,7 @@
         .btn {
             padding: 0.45rem 1rem;
             border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
@@ -91,7 +74,15 @@
         }
 
         .btn:hover {
-            background: rgba(255,255,255,0.12);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-ghost {
+            background: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.16);
         }
 
         .user-profile {
@@ -126,41 +117,27 @@
 
         .user-selector-label {
             font-size: 0.75rem;
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
         .user-dropdown {
             position: relative;
         }
 
-        #user-select-toggle {
-            position: relative;
-            padding-right: 1.8rem;
-        }
-
-        #user-select-toggle::after {
-            content: "▾";
-            position: absolute;
-            right: 0.6rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.7rem;
-            opacity: 0.8;
-        }
-
         .user-options {
             position: absolute;
-            top: 110%;
+            top: calc(100% + 4px);
             left: 0;
-            right: 0;
+            width: 260px;
             max-height: 260px;
-            background: #7451aa;
-            border-radius: 8px;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
             overflow-y: auto;
-            padding: 0.25rem 0;
+            background: white;
+            color: #111827;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+            padding: 0.35rem 0;
             display: none;
-            z-index: 200;
+            z-index: 999;
         }
 
         .user-options.open {
@@ -170,31 +147,37 @@
         .user-option {
             padding: 0.4rem 0.8rem;
             cursor: pointer;
-            font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .user-option span.user-id {
-            font-weight: 500;
-        }
-
-        .user-option span.user-meta {
-            font-size: 0.75rem;
-            color: #ffffff;
+            font-size: 0.85rem;
         }
 
         .user-option:hover {
-            background: #4f6190;
+            background: #eef2ff;
+        }
+
+        .user-id {
+            font-weight: 500;
+        }
+
+        .user-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
         }
 
         @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .navbar { flex-wrap: wrap; }
+            .navbar {
+                flex-wrap: wrap;
+            }
+            .user-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
 
         /* Status bar */
+
         .status-bar {
             max-width: 500px;
             margin: 16px auto 8px;
@@ -238,7 +221,41 @@
         .page-subtitle {
             font-size: 0.95rem;
             color: #777;
+            margin-bottom: 1rem;
+        }
+
+        /* View tabs (different "screens") */
+
+        .view-tabs {
+            display: inline-flex;
+            background: white;
+            border-radius: 999px;
+            padding: 0.2rem;
+            gap: 0.2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
             margin-bottom: 1.5rem;
+        }
+
+        .view-tab {
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            cursor: pointer;
+            color: #4b5563;
+            opacity: 0.7;
+        }
+
+        .view-tab.active {
+            background: #eef2ff;
+            color: #312e81;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        .view-section {
+            display: none;
         }
 
         /* Sections */
@@ -248,7 +265,7 @@
             border-radius: 12px;
             padding: 1.8rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
         }
 
         .section-title {
@@ -371,67 +388,20 @@
 
         .product-card {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            overflow: visible; /* чтобы тултип не обрезался */
-        }
-
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 7px 18px rgba(0,0,0,0.12);
-        }
-
-        .product-image {
-            height: 150px;
-            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 12px;
+            padding: 0.9rem;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #777;
-            font-size: 0.85rem;
+            flex-direction: column;
+            gap: 0.75rem;
             position: relative;
         }
 
-        .product-info {
-            padding: 1rem 1.2rem 1.1rem;
-        }
-
-        .product-title {
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            color: #333;
-            font-size: 0.95rem;
-        }
-
-        .product-description {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 0.6rem;
-            min-height: 2.1em;
-        }
-
-        .product-price {
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-        }
-
-        .add-to-cart {
-            width: 100%;
-            padding: 0.6rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .add-to-cart:hover {
-            background: #5a6fd8;
+        .product-image {
+            height: 140px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+            position: relative;
         }
 
         .recommendation-badge {
@@ -446,15 +416,61 @@
             font-weight: bold;
         }
 
+        .badge-fbt {
+            background: #f97316;
+        }
+
         .score-badge {
             position: absolute;
             bottom: 8px;
             right: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: #fff;
             font-size: 0.75rem;
             padding: 0.15rem 0.4rem;
             border-radius: 3px;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .product-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .product-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .add-to-cart {
+            margin-top: 0.5rem;
+            align-self: flex-start;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            border: none;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .add-to-cart:hover {
+            background: #5a6fd8;
         }
 
         /* Tooltip */
@@ -495,7 +511,7 @@
             font-size: 0.8rem;
             width: 260px;
             max-width: 80vw;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             z-index: 9999;
             transition: opacity 0.15s ease-out;
         }
@@ -583,7 +599,7 @@
             background: #f9fafb;
             border-radius: 8px;
             padding: 0.8rem 0.9rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .rec-card h4 {
@@ -617,22 +633,18 @@
                 <span class="logo-icon">🛒</span>
                 OnlineRetail
             </div>
-            <nav class="nav-links">
-                <a href="#">Home</a>
-                <a href="#">Categories</a>
-                <a href="#">Deals</a>
-                <a href="#">New Arrivals</a>
-            </nav>
             <div class="user-actions">
                 <div class="user-selector">
-                    <span class="user-selector-label">Customer</span>
                     <div class="user-dropdown">
                         <button id="user-select-toggle" class="btn">
-                            Loading users...
+                            Loading users…
                         </button>
                         <div id="user-options" class="user-options"></div>
                     </div>
                 </div>
+                <button id="clear-history-btn" class="btn btn-ghost">
+                    Clear history
+                </button>
                 <div class="user-profile">
                     <div class="user-avatar" id="user-avatar">U</div>
                     <span id="user-label">No user selected</span>
@@ -652,76 +664,94 @@
         <span>for customer <span id="page-user-id">…</span></span>
     </h1>
     <p class="page-subtitle">
-        Realistic storefront prototype: product page, cart, and personal feed powered by a recommendation model + LLM explanations.
+        Realistic storefront prototype: separate views for homepage, product page and cart, powered by an embedding-based recommender + LLM explanations.
     </p>
 
-    <!-- NEW: Purchase history -->
-    <section class="recommendation-section">
-        <h2 class="section-title">Previous purchases</h2>
-        <p class="section-subtitle">
-            Recent items this customer has bought. Recommendations below are generated based on these patterns.
-        </p>
-        <div id="history-list" class="history-list">
-            <!-- наполняется из app.js -->
-        </div>
+    <div class="view-tabs">
+        <button class="view-tab active" data-view="home">Home</button>
+        <button class="view-tab" data-view="product">Product page</button>
+        <button class="view-tab" data-view="cart">Shopping cart</button>
+    </div>
+
+    <!-- HOME VIEW: history + personalized recs + FBT -->
+    <section id="home-view" class="view-section">
+        <!-- Purchase history -->
+        <section class="recommendation-section">
+            <h2 class="section-title">Previous purchases</h2>
+            <p class="section-subtitle">
+                Recent items this customer has bought. Personalized recommendations are derived from this history.
+            </p>
+            <div id="history-list" class="history-list"></div>
+        </section>
+
+        <!-- Personalized recommendations -->
+        <section class="recommendation-section">
+            <h2 class="section-title">Personalized recommendations</h2>
+            <p class="section-subtitle">
+                Top-N items tailored for this customer based on their purchase history and similar shoppers.
+            </p>
+            <div id="personal-grid" class="product-grid"></div>
+        </section>
+
+        <!-- Frequently bought together (user-level) -->
+        <section class="recommendation-section">
+            <h2 class="section-title">Frequently bought together</h2>
+            <p class="section-subtitle">
+                Items that tend to co-occur with this customer’s historical purchases in similar baskets.
+            </p>
+            <div id="fbt-grid" class="product-grid"></div>
+        </section>
     </section>
 
-    <!-- 1. Product Page with Frequently Bought Together -->
-    <section class="recommendation-section">
-        <h2 class="section-title">Product Page</h2>
-        <p class="section-subtitle">Item-based collaborative filtering in action.</p>
+    <!-- PRODUCT PAGE VIEW -->
+    <section id="product-view" class="view-section">
+        <section class="recommendation-section">
+            <h2 class="section-title">Product Page</h2>
+            <p class="section-subtitle">
+                Item-based recommendations: “Frequently bought together” for a randomly selected product.
+            </p>
 
-        <div class="product-page-layout">
-            <div class="product-main">
-                <div class="hero-image">
-                    <span class="hero-badge">Tea Collection</span>
+            <div class="product-page-layout">
+                <div class="product-main">
+                    <div class="hero-image">
+                        <div class="hero-badge">Featured item</div>
+                    </div>
+                </div>
+                <div class="product-main-info">
+                    <h3 id="pp-title" class="hero-title">Loading product...</h3>
+                    <p id="pp-description" class="hero-text">
+                        A randomly selected product from the Online Retail dataset.
+                    </p>
+                    <p id="pp-product-id" class="hero-price"></p>
                 </div>
             </div>
-            <div class="product-main-info">
-                <h2 class="hero-title">Premium “English Breakfast” Set</h2>
-                <p class="hero-text">
-                    Everything you need for the perfect morning: premium tea, biscuits, jam and more – a curated set for tea enthusiasts.
-                </p>
-                <p class="hero-price">$45.99</p>
-                <button class="hero-add-btn">Add to Cart</button>
-            </div>
-        </div>
 
-        <h3 class="section-subtitle" style="margin-top: 0.5rem;">Frequently bought together:</h3>
-        <div id="fbt-grid" class="product-grid">
-            <!-- динамически заполняется app.js -->
-        </div>
+            <h3 class="section-subtitle" style="margin-top: 32px;">
+                Frequently bought together:
+            </h3>
+            <div id="pp-fbt-grid" class="product-grid"></div>
+        </section>
     </section>
 
-    <!-- 2. Shopping Cart with Recommendations -->
-    <section class="recommendation-section">
-        <h2 class="section-title">Shopping Cart with Recommendations</h2>
-        <p class="section-subtitle">We simulate a typical basket from this customer’s history and show smart add-ons.</p>
+    <!-- CART VIEW -->
+    <section id="cart-view" class="view-section">
+        <section class="recommendation-section">
+            <h2 class="section-title">Shopping Cart with Recommendations</h2>
+            <p class="section-subtitle">
+                We simulate a typical basket from this customer’s history and show smart add-ons.
+            </p>
 
-        <div class="cart-layout">
-            <div class="cart-column">
-                <h3 class="cart-column-title">Your items:</h3>
-                <div id="cart-bought-items" class="cart-items-list">
-                    <!-- динамика -->
+            <div class="cart-layout">
+                <div class="cart-column">
+                    <h3 class="cart-column-title">Your items:</h3>
+                    <div id="cart-bought-items" class="cart-items-list"></div>
+                </div>
+                <div class="cart-column">
+                    <h3 class="cart-column-title">You might also need:</h3>
+                    <div id="cart-recs" class="cart-recs"></div>
                 </div>
             </div>
-            <div class="cart-column">
-                <h3 class="cart-column-title">You might also need:</h3>
-                <div id="cart-recs" class="cart-recs">
-                    <!-- динамика -->
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. Personalized Recommendations feed -->
-    <section class="recommendation-section">
-        <h2 class="section-title">Personalized Recommendations</h2>
-        <p class="section-subtitle">Top-N items tailored for this customer based on their purchase history and similar shoppers.</p>
-
-        <div id="personal-grid" class="product-grid">
-            <!-- динамически заполняется app.js -->
-        </div>
+        </section>
     </section>
 </div>
 
